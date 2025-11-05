@@ -1,5 +1,6 @@
 #define FALSE 0
 #define TRUE 1
+#include "typedef.h"
 #include "syscall.h"
 #define print(string) do {write(1, (string), strlen((string)));} while(0)
 int power(int base, int exp){
@@ -10,6 +11,7 @@ int power(int base, int exp){
     }
     return result;
 }
+
 int stringCmp(const char* first, const char* sec, int len){
     if(first == 0 || sec == 0)
         return 0;

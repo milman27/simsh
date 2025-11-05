@@ -1,6 +1,6 @@
 CC = gcc
-WFLAGS =-fsanitize=address -fno-omit-frame-pointer -fno-lto -no-pie
-LDFLAGS = -fsanitize=address -lm -no-pie 
+WFLAGS =-fsanitize=address -fno-omit-frame-pointer 
+LDFLAGS = -fsanitize=address  
 CFLAGS = $(WFLAGS) -O0 -g3 
 O0CFLAGS = -O0 
 OBJ_DIR = obj

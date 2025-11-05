@@ -1,6 +1,11 @@
 #define FALSE 0
 #define TRUE 1
-#define uint64_t long long unsigned
+#define PROT_READ 1 
+#define PROT_WRITE 2
+#define MAP_ANON 32
+#define MAP_PRIVATE 2
+#include "syscall.h"
+#include "typedef.h"
 static int errnu = 0;
 uint64_t syscall( int unsigned number, ...){
     uint64_t retrn;
@@ -42,6 +47,13 @@ int chdir(const char* path){
    errnu = (ret < 0) ? -ret: 0;
    return (ret < 0) ? -1: 0;
 }
-int wait4(int pid, int* wstatus, int options, struct rusage* rusage){
+int wait4(int pid, int* wstatus, int options, void* rusage){
     return syscall(0x3d, pid, wstatus, options, rusage);
 }
+void* _mmap(void *addr, uint64_t length, int prot, int flags, int fd, int offset){
+    return (void*)syscall(0xc0, addr, length, prot, flags, fd, offset);
+}
+void* AAlloc(size_t size){
+   return _mmap(0, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);  
+}
+
