@@ -1,8 +1,8 @@
 CC = gcc
-WFLAGS =-fsanitize=address -fno-omit-frame-pointer 
-LDFLAGS = -fsanitize=address  
-CFLAGS = $(WFLAGS) -O0 -g3 
-O0CFLAGS = -O0 
+WFLAGS = 
+LDFLAGS =  -nostdlib -fno-stack-protector -nolibc
+CFLAGS = $(WFLAGS) -O0 -nostdlib -fno-stack-protector -nolibc
+O0CFLAGS = -O0 -nostdlib -fno-stack-protector -nolibc
 OBJ_DIR = obj
 BIN_DIR = bin
 

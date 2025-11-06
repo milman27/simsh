@@ -2,7 +2,7 @@
 #define TRUE 1
 #include "typedef.h"
 #include "syscall.h"
-#define print(string) do {write(1, (string), strlen((string)));} while(0)
+#define print(string) do {write(1, (string), _strlen((string)));} while(0)
 int power(int base, int exp){
     int i = 0;
     int result = 1;
@@ -49,7 +49,7 @@ char* numToStr(char* ret, int value){
     return ret;
 }
 
-int strlen(const char* str){
+int _strlen(const char* str){
     int i = 0;
     while(str[i]){
         i++;
@@ -126,12 +126,12 @@ int getPATH(const char *argv[], char *path[]){
 
 }
 char * _strcat(char * buffer, const char * first, const char * second){
-    int len = strlen(first);
-    int len2 = strlen(second);
-    for(int i = 0; i < strlen(first); i++){
+    int len = _strlen(first);
+    int len2 = _strlen(second);
+    for(int i = 0; i < _strlen(first); i++){
         buffer[i] = first[i]; 
     }
-    for (int i = 0; i < strlen(second); i++){
+    for (int i = 0; i < _strlen(second); i++){
         buffer[i + len] = second[i]; 
     }
     buffer[len + len2] = 0;
@@ -189,4 +189,14 @@ int main(int argc, char* argv[], char* envp[]){
         }
         wait4(pid, 0, 0, 0);
     }
+}
+int _start(){
+    int argc;
+    char ** argv;
+    char ** envp;
+    __asm__ ("mov 0x8(%%rbp),%0\n\tmovq %%rbp, %1\n\tadd $0x10, %1"
+                            : "=r" (argc), "=r" (argv) 
+    );
+    envp = (argv + argc) + 1;
+   _exit(main(argc, argv, envp)); 
 }

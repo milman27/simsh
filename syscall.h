@@ -11,4 +11,5 @@
  int chdir(const char*);
  int wait4(int pid, int* wstatus, int options, void* rusage);
  void* AAlloc(size_t size);
+ void _exit(int);
 #endif
