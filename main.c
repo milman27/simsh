@@ -93,14 +93,26 @@ int findChar(const char* string, char search){
     }
     return (search == 0) ? i : -1;
 }
-int getPATH(const char *argv[], char *path[]){
+char* getHOME(const char *envp[]){
     int i = 0;
-    for(;argv[i]; i++){
-        if(stringCmp(argv[i], "PATH=", 5)){
+    for(;envp[i];i++){
+        if(stringCmp(envp[i], "HOME=",5)){
             break;
         }
     }
-    if(!argv[i]){
+    if(!envp[i]){
+        return 0;
+    }
+    return (char *)&envp[i][5];
+}
+int getPATH(const char *envp[], char *path[]){
+    int i = 0;
+    for(;envp[i]; i++){
+        if(stringCmp(envp[i], "PATH=", 5)){
+            break;
+        }
+    }
+    if(!envp[i]){
         return 0;
     }
     int a = 0;
@@ -108,18 +120,18 @@ int getPATH(const char *argv[], char *path[]){
     int j = 5;
     char buf[100];
     int b = 0;
-    while((a = findChar(&argv[i][j], ':')) != -1){
+    while((a = findChar(&envp[i][j], ':')) != -1){
         temp = 0;
         for(; temp < a ; temp++){
-            path[b][temp] = argv[i][temp + j];
+            path[b][temp] = envp[i][temp + j];
         }
        j += a + 1; 
        b++;
     }
-    a = findChar(&argv[i][j], 0);
+    a = findChar(&envp[i][j], 0);
     temp = 0;
     for(; temp < a; temp++){
-        path[b][temp] = argv[i][temp + j];
+        path[b][temp] = envp[i][temp + j];
     }
     b++;
     return b + 1;
@@ -137,7 +149,7 @@ char * _strcat(char * buffer, const char * first, const char * second){
     buffer[len + len2] = 0;
     return buffer;
 }
-int main(int argc, char* argv[], char* envp[]){
+int main(int argc,char* argv[], char* envp[]){
     char program[100] = {0};
     char cwd[50] = {0};
     char path[15][100] = {0};     
@@ -163,9 +175,17 @@ int main(int argc, char* argv[], char* envp[]){
         
         if(program[0] == 'c' && program[1] == 'd'){
             if(chdir(args[1]) == -1){
-                print("Cannot find directory ");
-                print(args[1]);
-                print("\n");
+                if(args[1] != 0){
+                    print("Cannot find directory ");
+                    print(args[1]);
+                    print("\n");
+                }else{
+                    if(getHOME((const char**)envp) == 0){
+                        print("home not found in env");
+                    }else{
+                        chdir(getHOME((const char **)envp));
+                    }
+                }
             }
             continue;  
         }

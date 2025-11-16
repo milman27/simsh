@@ -1,8 +1,9 @@
-CC = gcc
+CC =gcc 
 WFLAGS = 
-LDFLAGS =  -nostdlib -fno-stack-protector -nolibc
-CFLAGS = $(WFLAGS) -O0 -nostdlib -fno-stack-protector -nolibc
-O0CFLAGS = -O0 -nostdlib -fno-stack-protector -nolibc
+NOLIBS = -nodefaultlibs -nostdlib -fno-stack-protector -ffreestanding
+LDFLAGS = $(NOLIBS) 
+CFLAGS = $(WFLAGS) -O0 $(NOLIBS)
+O0CFLAGS = -O0 $(NOLIBS)
 OBJ_DIR = obj
 BIN_DIR = bin
 
