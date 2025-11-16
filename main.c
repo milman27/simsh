@@ -149,9 +149,18 @@ char * _strcat(char * buffer, const char * first, const char * second){
     buffer[len + len2] = 0;
     return buffer;
 }
-int main(int argc,char* argv[], char* envp[]){
-    char program[100] = {0};
+char* getPrompt(char* buffer){
     char cwd[50] = {0};
+    char promptterm = '>';
+    char hashstr[2] = {promptterm, 0};
+    getcwd(cwd, 49);
+    _strcat(buffer, cwd, hashstr);
+    return buffer;
+}
+int main(int argc,char* argv[], char* envp[]){
+
+    char prompt[100] = {0};
+    char program[100] = {0};
     char path[15][100] = {0};     
     char *paths[16] = {path[0], path[1], path[2], path[3], path[4], path[5], path[6], path[7], path[8], path[9], path[10], path[11], path[12], path[13], path[14], 0};
     int num = getPATH((const char**) envp, paths); 
@@ -159,9 +168,7 @@ int main(int argc,char* argv[], char* envp[]){
         _strcat(paths[i], paths[i], "/");
     }
     while(1){
-        getcwd(cwd, 49);
-        print(cwd);
-        print("#");
+        print(getPrompt(prompt));
         int red = read(0, program, 90);
         program[red - 1] = 0;
         if(program[0] == 'q'){
