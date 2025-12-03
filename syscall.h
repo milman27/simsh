@@ -12,4 +12,7 @@
  int wait4(int pid, int* wstatus, int options, void* rusage);
  void* AAlloc(size_t size);
  void _exit(int);
+ int pipe(int *fildes);
+ int dup2(unsigned int oldfd, unsigned int newfd);
 #endif
+

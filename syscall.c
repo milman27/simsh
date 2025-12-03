@@ -28,6 +28,14 @@ uint64_t syscall( int unsigned number, ...){
 int fork(void){
     return syscall(0x39);
 }
+int pipe(int *fildes){
+   return syscall(22, fildes);
+}
+int dup2(unsigned int oldfd, unsigned int newfd){
+    int ret = syscall(33, oldfd, newfd);
+    return (ret < 0) ? -ret : 0;
+}
+
 int exec(const char* filename, const char* const *argv, const char *const *envp){
     int ret = syscall(0x3b, filename, argv, envp);
     return (ret < 0) ? -ret : 0;

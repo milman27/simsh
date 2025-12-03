@@ -70,20 +70,13 @@ int parseInput(char* args[], char * cmdline ){
             args[a] = temp;
             a++;
         }
+        if(cmdline[i] == '|'){
+            cmdline[i] = 0;
+            return -1*i;
+        }
     }
     args[a + 1] = (char*)0;
-#if 0 
-    i = 0;
-    while(args[i] != 0){
-        char * str = numToStr(i);
-        print(str);
-        print(":");
-        print(args[i]);
-        print("\n");
-        i++;
-    }
-#endif
-    return a;
+    return i;
 }
 int findChar(const char* string, char search){
     int i = 0;
@@ -169,7 +162,7 @@ int main(int argc,char* argv[], char* envp[]){
     }
     while(1){
         print(getPrompt(prompt));
-        int red = read(0, program, 90);
+        int red = read(0, program, 99);
         program[red - 1] = 0;
         if(program[0] == 'q'){
             return 0;
@@ -177,9 +170,18 @@ int main(int argc,char* argv[], char* envp[]){
         if(program[0] == 0){
             continue;
         }
-        char * args[100] = {0};
-        parseInput(args, program);
-        
+        char * args[1000] = {0};
+        char * args2 = args[100];
+        int i = 0;
+        char numbers[50];
+        int readFromLine = 0;
+        for(int parsed = -1; parsed < 0 ;i++){
+            parsed = parseInput(&args[i*100], &program[readFromLine]); 
+            readFromLine -= parsed;
+            readFromLine++;
+            //print(numToStr(numbers, readFromLine));
+        }
+         
         if(program[0] == 'c' && program[1] == 'd'){
             if(chdir(args[1]) == -1){
                 if(args[1] != 0){
@@ -197,24 +199,38 @@ int main(int argc,char* argv[], char* envp[]){
             continue;  
         }
         int pid;
-        if (!(pid = fork())){
-            char pathex[100] = {0};
-            int ret = 0; 
-            for(int i = 0; i < num; i++){
-                _strcat(pathex, paths[i], program);
-                ret = exec(pathex, (const char* const *)args, (const char* const *)envp);
-            }
-            if(ret == 2){
-                print("File not found: ");
-                print(program); 
-                print("\n");
-            }
-            char buffer[20];
-            char* number = numToStr(buffer, ret);
+        int pipes[2];
+        pipe(pipes);
+        for(int j = 0; j < i; j++){
+            if (!(pid = fork())){
+                if(i > 1){
+                    if(j == 0){
+                        dup2(pipes[1], 1);
+                    }
+                    if(j == 1){
+                        dup2(pipes[0], 0);
+                    }
+                }
+                char pathex[100] = {0};
+                int ret = 0; 
+                for(int i = 0; i < num; i++){
+                    _strcat(pathex, paths[i], args[j*100]);
+                    ret = exec(pathex, (const char* const *)&(args[j*100]), (const char* const *)envp);
+                }
+                if(ret == 2){
+                    print("File not found: ");
+                    print(program); 
+                    print("\n");
+                }
 
-            return ret;
+                return ret;
+            }
+            print(numToStr(numbers, pid));
+            print("\n");
+            if(i == j+1){
+                wait4(-1, 0, 0, 0);
+            }
         }
-        wait4(pid, 0, 0, 0);
     }
 }
 int _start(){

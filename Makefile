@@ -1,8 +1,8 @@
 CC =gcc 
 WFLAGS = 
 NOLIBS = -nodefaultlibs -nostdlib -fno-stack-protector -ffreestanding
-LDFLAGS = $(NOLIBS) 
-CFLAGS = $(WFLAGS) -O0 $(NOLIBS)
+LDFLAGS = $(NOLIBS) -static
+CFLAGS = $(WFLAGS) -O0 $(NOLIBS) -g
 O0CFLAGS = -O0 $(NOLIBS)
 OBJ_DIR = obj
 BIN_DIR = bin
