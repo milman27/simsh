@@ -13,6 +13,7 @@
  void* AAlloc(size_t size);
  void _exit(int);
  int pipe(int *fildes);
+ int close(int fd);
  int dup2(unsigned int oldfd, unsigned int newfd);
 #endif
 

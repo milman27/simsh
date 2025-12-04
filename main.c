@@ -151,9 +151,9 @@ char* getPrompt(char* buffer){
     return buffer;
 }
 int main(int argc,char* argv[], char* envp[]){
-
+    int displayPid = 1;
     char prompt[100] = {0};
-    char program[100] = {0};
+    char program[1000] = {0};
     char path[15][100] = {0};     
     char *paths[16] = {path[0], path[1], path[2], path[3], path[4], path[5], path[6], path[7], path[8], path[9], path[10], path[11], path[12], path[13], path[14], 0};
     int num = getPATH((const char**) envp, paths); 
@@ -171,7 +171,6 @@ int main(int argc,char* argv[], char* envp[]){
             continue;
         }
         char * args[1000] = {0};
-        char * args2 = args[100];
         int i = 0;
         char numbers[50];
         int readFromLine = 0;
@@ -198,17 +197,45 @@ int main(int argc,char* argv[], char* envp[]){
             }
             continue;  
         }
-        int pid;
-        int pipes[2];
-        pipe(pipes);
+        int pid[10];
+        int pipes[2*(i-1)];
+        for(int l = 0; l < i; l++){
+            pipe(&pipes[2*l]);
+        }
         for(int j = 0; j < i; j++){
-            if (!(pid = fork())){
+            if (!(pid[j] = fork())){
                 if(i > 1){
                     if(j == 0){
+                        print(args[j*100]);
+                        print(" : ");
+                        print("in");
+                        print(" : ");
+                        print("1");
+                        print("\n");
+
                         dup2(pipes[1], 1);
+                        close(pipes[1]);
                     }
-                    if(j == 1){
-                        dup2(pipes[0], 0);
+                    else if(j == i-1){
+                        print(args[j*100]);
+                        print(" : ");
+                        print(numToStr(numbers, 2*(j-1)));
+                        print(" : ");
+                        print("out");
+                        print("\n");
+                        dup2(pipes[2*(j-1)], 0);
+                        close(pipes[2*(j-1)]);
+                    }else{
+                        print(args[j*100]);
+                        print(" : ");
+                        print(numToStr(numbers, 2*(j-1)));
+                        print(" : ");
+                        print(numToStr(numbers, 2*j+1));
+                        print("\n");
+                        dup2(pipes[2*(j-1)],0);
+                        close(pipes[2*(j-1)]);
+                        dup2(pipes[2*j + 1],1);
+                        close(pipes[2*j +1]);
                     }
                 }
                 char pathex[100] = {0};
@@ -219,17 +246,20 @@ int main(int argc,char* argv[], char* envp[]){
                 }
                 if(ret == 2){
                     print("File not found: ");
-                    print(program); 
+                    print(args[j*100]); 
                     print("\n");
+                    if(i >1)
+                        close(pipes[2*j+1]);
                 }
-
                 return ret;
             }
-            print(numToStr(numbers, pid));
-            print("\n");
-            if(i == j+1){
-                wait4(-1, 0, 0, 0);
+            if(displayPid){
+                print(numToStr(numbers, pid[j]));
+                print("\n");
             }
+        }
+        for(int l = 0; l < i-1;l++){
+            wait4(pid[l], 0, 0, 0); 
         }
     }
 }

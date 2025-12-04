@@ -28,6 +28,9 @@ uint64_t syscall( int unsigned number, ...){
 int fork(void){
     return syscall(0x39);
 }
+int close(int fd){
+    return syscall(3, fd);
+}
 int pipe(int *fildes){
    return syscall(22, fildes);
 }
