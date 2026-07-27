@@ -1,2 +1,2 @@
 # simsh
-Simple bash with no libraries
+Simple shell with no libraries
