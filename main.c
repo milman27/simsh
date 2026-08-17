@@ -3,6 +3,13 @@
 #include "typedef.h"
 #include "syscall.h"
 #define print(string) do {write(1, (string), _strlen((string)));} while(0)
+void * memset(void* ptr, int value, unsigned long len){
+    unsigned char chr = (unsigned char)value;
+    for(int i = 0; i < len; i++){
+        ((unsigned char*)ptr)[i] = chr;
+    }
+    return ptr;
+}
 int power(int base, int exp){
     int i = 0;
     int result = 1;
@@ -29,6 +36,7 @@ int stringCmp(const char* first, const char* sec, int len){
 char* numToStr(char* ret, int value){
     if(value == 0){
         ret[0] = '0';
+        ret[1] = 0;
         return ret;
     }
         
@@ -206,42 +214,23 @@ int main(int argc,char* argv[], char* envp[]){
             if (!(pid[j] = fork())){
                 if(i > 1){
                     if(j == 0){
-                        print(args[j*100]);
-                        print(" : ");
-                        print("in");
-                        print(" : ");
-                        print("1");
-                        print("\n");
-
-                        dup2(pipes[1], 1);
-                        close(pipes[1]);
+                       dup2(pipes[1], 1);
+                       close(pipes[1]);
                     }
                     else if(j == i-1){
-                        print(args[j*100]);
-                        print(" : ");
-                        print(numToStr(numbers, 2*(j-1)));
-                        print(" : ");
-                        print("out");
-                        print("\n");
-                        dup2(pipes[2*(j-1)], 0);
-                        close(pipes[2*(j-1)]);
+                       dup2(pipes[2*(j-1)], 0);
+                       close(pipes[2*(j-1)]);
                     }else{
-                        print(args[j*100]);
-                        print(" : ");
-                        print(numToStr(numbers, 2*(j-1)));
-                        print(" : ");
-                        print(numToStr(numbers, 2*j+1));
-                        print("\n");
-                        dup2(pipes[2*(j-1)],0);
-                        close(pipes[2*(j-1)]);
-                        dup2(pipes[2*j + 1],1);
-                        close(pipes[2*j +1]);
+                       dup2(pipes[2*(j-1)],0);
+                       close(pipes[2*(j-1)]);
+                       dup2(pipes[2*j + 1],1);
+                       close(pipes[2*j+1]);
                     }
                 }
                 char pathex[100] = {0};
                 int ret = 0; 
-                for(int i = 0; i < num; i++){
-                    _strcat(pathex, paths[i], args[j*100]);
+                for(int q = 0; q < num; q++){
+                    _strcat(pathex, paths[q], args[j*100]);
                     ret = exec(pathex, (const char* const *)&(args[j*100]), (const char* const *)envp);
                 }
                 if(ret == 2){
@@ -252,15 +241,44 @@ int main(int argc,char* argv[], char* envp[]){
                         close(pipes[2*j+1]);
                 }
                 return ret;
-            }
-            if(displayPid){
-                print(numToStr(numbers, pid[j]));
-                print("\n");
+            }else{
+                
+                if(i > 1){
+                    if(j == 0){
+                        print(args[j*100]);
+                        print(" : ");
+                        print("in");
+                        print(" : ");
+                        print("1");
+                        print("\n");
+                       close(pipes[1]);
+                    }
+                    else if(j == i-1){
+                        print(args[j*100]);
+                        print(" : ");
+                        print(numToStr(numbers, 2*(j-1)));
+                        print(" : ");
+                        print("out");
+                        print("\n");
+                       close(pipes[2*(j-1)]);
+                    }else{
+                        print(args[j*100]);
+                        print(" : ");
+                        print(numToStr(numbers, 2*(j-1)));
+                        print(" : ");
+                        print(numToStr(numbers, 2*j+1));
+                        print("\n");
+                       close(pipes[2*(j-1)]);
+                       close(pipes[2*j+1]);
+                    }
+                }
+                if(displayPid){
+                    print(numToStr(numbers, pid[j]));
+                    print("\n");
+                }
             }
         }
-        for(int l = 0; l < i-1;l++){
-            wait4(pid[l], 0, 0, 0); 
-        }
+            wait4(0, 0, 0, 0); 
     }
 }
 int _start(){
