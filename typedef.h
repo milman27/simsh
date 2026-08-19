@@ -1,11 +1,12 @@
 #ifndef TYPEDEF_M
 #define TYPEDEF_M
+#define SA_RESTORER 0x04000000
 typedef char unsigned uint8_t;
 typedef short unsigned uint16_t;
 typedef  long long unsigned uint64_t;
 typedef uint64_t size_t;
 typedef struct sigset_t{
-    uint8_t data[128];
+    uint64_t data[2];
 }sigset_t;
 struct sigaction{
     void (*sighandle)(int);

@@ -25,6 +25,16 @@ uint64_t syscall( int unsigned number, ...){
             );
     return retrn;
 }
+__attribute__((naked))
+void sigreturn(){
+    __asm__ __volatile__(
+            "mov $15, %%rax\n\t"
+            "syscall"
+            :
+            :
+            : "%rax"
+            );
+}
 int sigaction(int signum, const struct sigaction* act, struct sigaction* oldact, size_t sigsetsize){
     int ret = syscall(0xd, signum, act, oldact, sigsetsize); 
     if(ret < 0){

@@ -163,11 +163,11 @@ char* getPrompt(char* buffer){
 int main(int argc,char* argv[], char* envp[]){
     char nums[10];
     struct sigaction sig;
-    sig.sighandle = &handler;
-    sig.sa_flags = 0;
-    sig.sa_restorer = 0;
-    memset(&sig.sa_mask, 0, 128);
-    sigaction(2, &sig, 0, 128);
+    sig.sighandle = handler;
+    sig.sa_flags = SA_RESTORER;
+    sig.sa_restorer = sigreturn;
+    memset(&sig.sa_mask, 0, 8);
+    sigaction(2, &sig, 0, 8);
     print(numToStr(nums, errnu));
     int displayPid = 1;
     char prompt[100] = {0};

@@ -3,7 +3,7 @@ WFLAGS =
 NOLIBS = -nodefaultlibs -nostdlib -fno-stack-protector -ffreestanding
 LDFLAGS = $(NOLIBS) -static
 CFLAGS = $(WFLAGS) -O0 $(NOLIBS) -g
-O0CFLAGS = -O0 $(NOLIBS)
+O0CFLAGS = -O0 $(NOLIBS) -g
 OBJ_DIR = obj
 BIN_DIR = bin
 
