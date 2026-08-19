@@ -25,6 +25,14 @@ uint64_t syscall( int unsigned number, ...){
             );
     return retrn;
 }
+int sigaction(int signum, const struct sigaction* act, struct sigaction* oldact, size_t sigsetsize){
+    int ret = syscall(0xd, signum, act, oldact, sigsetsize); 
+    if(ret < 0){
+        errnu = -ret;
+        return -1;
+    }
+    return 0; 
+}
 int fork(void){
     return syscall(0x39);
 }

@@ -15,5 +15,6 @@
  int pipe(int *fildes);
  int close(int fd);
  int dup2(unsigned int oldfd, unsigned int newfd);
+ int sigaction(int, const struct sigaction*, struct sigaction*, size_t);
 #endif
 

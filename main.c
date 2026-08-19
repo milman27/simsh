@@ -3,6 +3,8 @@
 #include "typedef.h"
 #include "syscall.h"
 #define print(string) do {write(1, (string), _strlen((string)));} while(0)
+void handler(int signum){ 
+}
 void * memset(void* ptr, int value, unsigned long len){
     unsigned char chr = (unsigned char)value;
     for(int i = 0; i < len; i++){
@@ -159,11 +161,20 @@ char* getPrompt(char* buffer){
     return buffer;
 }
 int main(int argc,char* argv[], char* envp[]){
+    char nums[10];
+    struct sigaction sig;
+    sig.sighandle = &handler;
+    sig.sa_flags = 0;
+    sig.sa_restorer = 0;
+    memset(&sig.sa_mask, 0, 128);
+    sigaction(2, &sig, 0, 128);
+    print(numToStr(nums, errnu));
     int displayPid = 1;
     char prompt[100] = {0};
     char program[1000] = {0};
     char path[15][100] = {0};     
     char *paths[16] = {path[0], path[1], path[2], path[3], path[4], path[5], path[6], path[7], path[8], path[9], path[10], path[11], path[12], path[13], path[14], 0};
+
     int num = getPATH((const char**) envp, paths); 
     for(int i = 0; i < num -1; i++){
         _strcat(paths[i], paths[i], "/");
@@ -207,7 +218,7 @@ int main(int argc,char* argv[], char* envp[]){
         }
         int pid[10];
         int pipes[2*(i-1)];
-        for(int l = 0; l < i; l++){
+        for(int l = 0; l < (i-1); l++){
             pipe(&pipes[2*l]);
         }
         for(int j = 0; j < i; j++){
@@ -239,10 +250,10 @@ int main(int argc,char* argv[], char* envp[]){
                     print("\n");
                     if(i >1)
                         close(pipes[2*j+1]);
+                        close(pipes[2*j]);
                 }
                 return ret;
             }else{
-                
                 if(i > 1){
                     if(j == 0){
                         print(args[j*100]);
@@ -250,6 +261,8 @@ int main(int argc,char* argv[], char* envp[]){
                         print("in");
                         print(" : ");
                         print("1");
+                        print("\n");
+                        print(numToStr(numbers, pipes[1]));
                         print("\n");
                        close(pipes[1]);
                     }
@@ -260,6 +273,8 @@ int main(int argc,char* argv[], char* envp[]){
                         print(" : ");
                         print("out");
                         print("\n");
+                        print(numToStr(numbers, pipes[2*(j-1)]));
+                        print("\n");
                        close(pipes[2*(j-1)]);
                     }else{
                         print(args[j*100]);
@@ -267,6 +282,10 @@ int main(int argc,char* argv[], char* envp[]){
                         print(numToStr(numbers, 2*(j-1)));
                         print(" : ");
                         print(numToStr(numbers, 2*j+1));
+                        print("\n");
+                        print(numToStr(numbers, pipes[2*(j-1)]));
+                        print("\n");
+                        print(numToStr(numbers, pipes[2*j+1]));
                         print("\n");
                        close(pipes[2*(j-1)]);
                        close(pipes[2*j+1]);
@@ -278,7 +297,7 @@ int main(int argc,char* argv[], char* envp[]){
                 }
             }
         }
-            wait4(0, 0, 0, 0); 
+            wait4(pid[i-1], 0, 0, 0); 
     }
 }
 int _start(){
