@@ -7,6 +7,7 @@
 #include "syscall.h"
 #include "typedef.h"
 static int errnu = 0;
+extern int main(int, char**, char**);
 uint64_t syscall( int unsigned number, ...){
     uint64_t retrn;
     __asm__ __volatile__(
@@ -85,7 +86,39 @@ void* _mmap(void *addr, uint64_t length, int prot, int flags, int fd, int offset
 void* AAlloc(size_t size){
    return _mmap(0, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);  
 }
+/*__attribute__((noreturn))
+void _start(){
+    __asm__("sub $0x8,%rbp\n\tsub $0x8,%rsp");
+    register uint64_t *sp __asm__ ("rsp"); 
+    __asm__ ("mov 0x8(%%rbp),%0\n\tmovq %%rbp, %1\n\tadd $0x10, %1"
+                            : "=r" (argc), "=r" (argv) 
+    );
+    int argc = sp[0];
+    char ** argv = (char **)&sp[1];
+    char ** envp = (argv + argc) + 1;
+   _exit(main(argc, argv, envp)); 
+}*/
+static __attribute__((noreturn))
+void c_start(int argc, char **argv, char **envp)
+{
+    _exit(main(argc, argv, envp));
+}
 
+__attribute__((naked, noreturn))
+void _start(void)
+{
+    __asm__ volatile(
+        "xor %%ebp, %%ebp\n\t"
+        "mov (%%rsp), %%rdi\n\t"
+        "lea 8(%%rsp), %%rsi\n\t"
+        "lea 16(%%rsp,%%rdi,8), %%rdx\n\t"
+        "call c_start\n\t"
+        :
+        :
+        : "rdi", "rsi", "rdx", "memory"
+    );
+}
 void _exit(int exit){
     syscall(0x3c, exit);
 }
+

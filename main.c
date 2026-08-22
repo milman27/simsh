@@ -1,72 +1,11 @@
-#define FALSE 0
-#define TRUE 1
 #include "typedef.h"
 #include "syscall.h"
+#include "libs.h"
+#include "util.h"
 #define print(string) do {write(1, (string), _strlen((string)));} while(0)
 void handler(int signum){ 
+    print("\n");
 }
-void * memset(void* ptr, int value, unsigned long len){
-    unsigned char chr = (unsigned char)value;
-    for(int i = 0; i < len; i++){
-        ((unsigned char*)ptr)[i] = chr;
-    }
-    return ptr;
-}
-int power(int base, int exp){
-    int i = 0;
-    int result = 1;
-    for(; i < exp; i++){
-        result *= base;
-    }
-    return result;
-}
-
-int stringCmp(const char* first, const char* sec, int len){
-    if(first == 0 || sec == 0)
-        return 0;
-    
-    int i = 0;
-    for(; i < len; i++){
-        if(first[i] == '\0' || sec[i] == '\0')
-            return first[i] == sec[i];
-        if(first[i] != sec[i])
-            return 0;
-    }
-    return 1;
-}
-
-char* numToStr(char* ret, int value){
-    if(value == 0){
-        ret[0] = '0';
-        ret[1] = 0;
-        return ret;
-    }
-        
-    int ptr = 0;
-    int top = FALSE;
-    int i = 9;
-    for(; i >= 0; i--){
-        int powe = power(10, i); 
-        if(powe > value && !top ){
-            continue;
-        }
-        top = TRUE;
-        ret[ptr++] = value/(int)powe + '0';
-        value = value - ((value/(int)powe) * (int)powe);
-    }
-    ret[ptr] = '\0';
-
-    return ret;
-}
-
-int _strlen(const char* str){
-    int i = 0;
-    while(str[i]){
-        i++;
-    }
-    return i;
-}
-
 int parseInput(char* args[], char * cmdline ){ 
     int i = 0;
     int a = 0;
@@ -87,14 +26,6 @@ int parseInput(char* args[], char * cmdline ){
     }
     args[a + 1] = (char*)0;
     return i;
-}
-int findChar(const char* string, char search){
-    int i = 0;
-    for(;string[i]; i++){
-        if(string[i] == search)
-            return i;
-    }
-    return (search == 0) ? i : -1;
 }
 char* getHOME(const char *envp[]){
     int i = 0;
@@ -121,7 +52,6 @@ int getPATH(const char *envp[], char *path[]){
     int a = 0;
     int temp = 0;
     int j = 5;
-    char buf[100];
     int b = 0;
     while((a = findChar(&envp[i][j], ':')) != -1){
         temp = 0;
@@ -140,18 +70,6 @@ int getPATH(const char *envp[], char *path[]){
     return b + 1;
 
 }
-char * _strcat(char * buffer, const char * first, const char * second){
-    int len = _strlen(first);
-    int len2 = _strlen(second);
-    for(int i = 0; i < _strlen(first); i++){
-        buffer[i] = first[i]; 
-    }
-    for (int i = 0; i < _strlen(second); i++){
-        buffer[i + len] = second[i]; 
-    }
-    buffer[len + len2] = 0;
-    return buffer;
-}
 char* getPrompt(char* buffer){
     char cwd[50] = {0};
     char promptterm = '>';
@@ -160,15 +78,9 @@ char* getPrompt(char* buffer){
     _strcat(buffer, cwd, hashstr);
     return buffer;
 }
-int main(int argc,char* argv[], char* envp[]){
-    char nums[10];
-    struct sigaction sig;
-    sig.sighandle = handler;
-    sig.sa_flags = SA_RESTORER;
-    sig.sa_restorer = sigreturn;
-    memset(&sig.sa_mask, 0, 8);
-    sigaction(2, &sig, 0, 8);
-    print(numToStr(nums, errnu));
+__attribute__((weak))
+int main(int argc, char* argv[], char* envp[]){
+    signal(2, handler);
     int displayPid = 1;
     char prompt[100] = {0};
     char program[1000] = {0};
@@ -238,8 +150,7 @@ int main(int argc,char* argv[], char* envp[]){
                        close(pipes[2*j+1]);
                     }
                 }
-                char pathex[100] = {0};
-                int ret = 0; 
+                char pathex[100] = {0}; int ret = 0; 
                 for(int q = 0; q < num; q++){
                     _strcat(pathex, paths[q], args[j*100]);
                     ret = exec(pathex, (const char* const *)&(args[j*100]), (const char* const *)envp);
@@ -248,45 +159,20 @@ int main(int argc,char* argv[], char* envp[]){
                     print("File not found: ");
                     print(args[j*100]); 
                     print("\n");
-                    if(i >1)
+                    if(i >1){
                         close(pipes[2*j+1]);
                         close(pipes[2*j]);
+                    }
                 }
                 return ret;
             }else{
                 if(i > 1){
                     if(j == 0){
-                        print(args[j*100]);
-                        print(" : ");
-                        print("in");
-                        print(" : ");
-                        print("1");
-                        print("\n");
-                        print(numToStr(numbers, pipes[1]));
-                        print("\n");
                        close(pipes[1]);
                     }
                     else if(j == i-1){
-                        print(args[j*100]);
-                        print(" : ");
-                        print(numToStr(numbers, 2*(j-1)));
-                        print(" : ");
-                        print("out");
-                        print("\n");
-                        print(numToStr(numbers, pipes[2*(j-1)]));
-                        print("\n");
                        close(pipes[2*(j-1)]);
                     }else{
-                        print(args[j*100]);
-                        print(" : ");
-                        print(numToStr(numbers, 2*(j-1)));
-                        print(" : ");
-                        print(numToStr(numbers, 2*j+1));
-                        print("\n");
-                        print(numToStr(numbers, pipes[2*(j-1)]));
-                        print("\n");
-                        print(numToStr(numbers, pipes[2*j+1]));
-                        print("\n");
                        close(pipes[2*(j-1)]);
                        close(pipes[2*j+1]);
                     }
@@ -300,13 +186,4 @@ int main(int argc,char* argv[], char* envp[]){
             wait4(pid[i-1], 0, 0, 0); 
     }
 }
-int _start(){
-    int argc;
-    char ** argv;
-    char ** envp;
-    __asm__ ("mov 0x8(%%rbp),%0\n\tmovq %%rbp, %1\n\tadd $0x10, %1"
-                            : "=r" (argc), "=r" (argv) 
-    );
-    envp = (argv + argc) + 1;
-   _exit(main(argc, argv, envp)); 
-}
+
