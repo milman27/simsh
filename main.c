@@ -2,6 +2,7 @@
 #include "syscall.h"
 #include "libs.h"
 #include "util.h"
+#include "arena.h"
 #define print(string) do {write(1, (string), _strlen((string)));} while(0)
 void handler(int signum){ 
     print("\n");
@@ -82,11 +83,12 @@ __attribute__((weak))
 int main(int argc, char* argv[], char* envp[]){
     signal(2, handler);
     int displayPid = 1;
-    char prompt[100] = {0};
-    char program[1000] = {0};
-    char path[15][100] = {0};     
-    char *paths[16] = {path[0], path[1], path[2], path[3], path[4], path[5], path[6], path[7], path[8], path[9], path[10], path[11], path[12], path[13], path[14], 0};
-
+    char * prompt = arenaAlloc(0, 100);
+    char * program = arenaAlloc(0, 1000);
+    char * path = arenaAlloc(0, 1500);
+    memset(path, 0, 1500);
+    char *paths[16] = {path + 0, path + 100, path + 200, path + 300, path + 400, path + 500, path + 600, path + 700, path + 800, path + 900, path + 1000, 
+        path + 1100, path + 1200, path + 1300, path + 1400, 0};
     int num = getPATH((const char**) envp, paths); 
     for(int i = 0; i < num -1; i++){
         _strcat(paths[i], paths[i], "/");

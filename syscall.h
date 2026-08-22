@@ -9,6 +9,7 @@ int fork(void);
 char* getcwd(char *buf, unsigned long size);
 int chdir(const char*);
 int wait4(int pid, int* wstatus, int options, void* rusage);
+int munmap(void* addr, uint64_t len);
 void* AAlloc(size_t size);
 void _exit(int);
 int pipe(int *fildes);

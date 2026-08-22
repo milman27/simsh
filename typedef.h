@@ -2,6 +2,7 @@
 #define TYPEDEF_M
 #define SA_RESTORER 0x04000000
 #define FALSE 0
+#define NULL 0
 #define TRUE 1
 typedef char unsigned uint8_t;
 typedef short unsigned uint16_t;

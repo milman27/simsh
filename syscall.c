@@ -80,8 +80,12 @@ int chdir(const char* path){
 int wait4(int pid, int* wstatus, int options, void* rusage){
     return syscall(0x3d, pid, wstatus, options, rusage);
 }
+int munmap(void *addr, uint64_t len){
+    int ret = syscall(0xb, addr, len);
+    return (ret ? -ret : ret);
+}
 void* _mmap(void *addr, uint64_t length, int prot, int flags, int fd, int offset){
-    return (void*)syscall(0xc0, addr, length, prot, flags, fd, offset);
+    return (void*)syscall(0x09, addr, length, prot, flags, fd, offset);
 }
 void* AAlloc(size_t size){
    return _mmap(0, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);  
