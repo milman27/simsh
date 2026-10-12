@@ -152,7 +152,8 @@ int main(int argc, char* argv[], char* envp[]){
                        close(pipes[2*j+1]);
                     }
                 }
-                char pathex[100] = {0}; int ret = 0; 
+                char pathex[100] = {0};
+                int ret = 0; 
                 for(int q = 0; q < num; q++){
                     _strcat(pathex, paths[q], args[j*100]);
                     ret = exec(pathex, (const char* const *)&(args[j*100]), (const char* const *)envp);
@@ -168,6 +169,7 @@ int main(int argc, char* argv[], char* envp[]){
                 }
                 return ret;
             }else{
+                program[0] = 0;
                 if(i > 1){
                     if(j == 0){
                        close(pipes[1]);
@@ -185,7 +187,9 @@ int main(int argc, char* argv[], char* envp[]){
                 }
             }
         }
-            wait4(pid[i-1], 0, 0, 0); 
+        for(int j = 0;  j < i; j++){ 
+            wait4(pid[j], 0, 0, 0); 
+        }
     }
 }
 
